@@ -104,3 +104,9 @@ body {
   color: var(--muted);
   margin: 20px 0 8px;
 }
+
+.all-clear {
+  color: var(--muted);
+  font-style: italic;
+  font-size: 14px;
+}

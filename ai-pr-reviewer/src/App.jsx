@@ -66,9 +66,17 @@ export default function App() {
           <h3>Summary</h3>
           <p>{result.summary}</p>
           <h3>Potential Issues</h3>
-          <ul>{result.potentialIssues?.map((issue, i) => <li key={i}>{issue}</li>)}</ul>
+          {result.potentialIssues?.length > 0 ? (
+            <ul>{result.potentialIssues.map((issue, i) => <li key={i}>{issue}</li>)}</ul>
+          ) : (
+            <p className="all-clear">No significant issues found.</p>
+          )}
           <h3>Suggestions</h3>
-          <ul>{result.suggestions?.map((s, i) => <li key={i}>{s}</li>)}</ul>
+          {result.suggestions?.length > 0 ? (
+            <ul>{result.suggestions.map((s, i) => <li key={i}>{s}</li>)}</ul>
+          ) : (
+            <p className="all-clear">No suggestions — looks good as-is.</p>
+          )}
         </div>
       )}
     </div>
