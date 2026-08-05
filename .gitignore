@@ -39,3 +39,4 @@ bin/
 *.sw?
 personal-readme.md
 .env.local
+.vercel

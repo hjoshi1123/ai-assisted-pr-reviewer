@@ -1,5 +1,5 @@
 {
   "buildCommand": "cd ai-pr-reviewer && npm install && npm run build",
-  "outputDirectory": "ai-pr-reviewer/dist",
-  "rewrites": [{ "source": "/(.*)", "destination": "/" }]
+  "devCommand": "cd ai-pr-reviewer && npm run dev -- --port $PORT",
+  "outputDirectory": "ai-pr-reviewer/dist"
 }

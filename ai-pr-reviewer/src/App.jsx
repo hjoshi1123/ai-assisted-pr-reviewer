@@ -1,122 +1,76 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState, useEffect } from "react";
+import { reviewPR } from "./api";
+import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [prUrl, setPrUrl] = useState("");
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [recent, setRecent] = useState([]);
+
+  useEffect(() => {
+    console.log("App loaded");
+  }, []);
+
+  const handleSubmit = async () => {
+    if (!prUrl.trim()) return;
+    setLoading(true);
+    setError(null);
+    setResult(null);
+    try {
+      const data = await reviewPR(prUrl);
+      setResult(data);
+      setRecent((prev) => [prUrl, ...prev.filter((u) => u !== prUrl)].slice(0, 5));
+    } catch (err) {
+      setError("Something went wrong. Check the URL and try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
+    <div className="app">
+      <h1>AI PR Reviewer</h1>
+      <p className="subtitle">Paste a public GitHub PR URL to get an AI-generated code review.</p>
+
+      <div className="field">
+        <input
+          type="text"
+          value={prUrl}
+          onChange={(e) => setPrUrl(e.target.value)}
+          placeholder="https://github.com/owner/repo/pull/123"
+        />
+        <button className="analyze-btn" onClick={handleSubmit} disabled={loading}>
+          {loading ? "Reviewing..." : "Review"}
         </button>
-      </section>
+      </div>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+      {recent.length > 0 && (
+        <div className="recent">
+          <span>Recent: </span>
+          {recent.map((url, i) => (
+            <button key={i} className="recent-chip" onClick={() => setPrUrl(url)}>
+              {url.split("/").slice(-3).join("/")}
+            </button>
+          ))}
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      )}
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      {loading && <p className="loader">Fetching diff and generating review...</p>}
+      {error && <p className="error-msg">{error}</p>}
+
+      {result && (
+        <div className="results">
+          <p className={`risk-badge risk-${result.riskLevel}`}>Risk: {result.riskLevel}</p>
+          <h3>Summary</h3>
+          <p>{result.summary}</p>
+          <h3>Potential Issues</h3>
+          <ul>{result.potentialIssues?.map((issue, i) => <li key={i}>{issue}</li>)}</ul>
+          <h3>Suggestions</h3>
+          <ul>{result.suggestions?.map((s, i) => <li key={i}>{s}</li>)}</ul>
+        </div>
+      )}
+    </div>
+  );
 }
-
-export default App
