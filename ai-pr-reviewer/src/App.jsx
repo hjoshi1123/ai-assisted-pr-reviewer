@@ -31,7 +31,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <h1>AI PR Reviewer</h1>
+      <h1>AI Assisted PR Reviewer</h1>
       <p className="subtitle">Paste a public GitHub PR URL to get an AI-generated code review.</p>
 
       <div className="field">
