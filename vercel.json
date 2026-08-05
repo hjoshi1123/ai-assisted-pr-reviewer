@@ -1,0 +1,5 @@
+{
+  "buildCommand": "cd ai-pr-reviewer && npm install && npm run build",
+  "devCommand": "cd ai-pr-reviewer && npm run dev -- --port $PORT",
+  "outputDirectory": "ai-pr-reviewer/dist"
+}
